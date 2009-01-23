@@ -1,6 +1,6 @@
 (function() {
 
-var hosted_at = "http://localhost/";
+var hosted_at = "http://infyblog-dashboard.googlecode.com/svn/trunk/";
 
 
 function load_jQuery(callback) {
