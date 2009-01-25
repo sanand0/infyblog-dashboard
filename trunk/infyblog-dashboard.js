@@ -31,7 +31,7 @@ function dashboard() {
                 font: '14px sans-serif',
                 textAlign: 'center'
             })
-            .appendTo($('body'))
+            .appendTo($('body'));
         $('html,body').animate({scrollTop: 0}, {complete: function() { setTimeout(function() { notice.fadeOut(4000); }, 2000); } });
         return;
     }
@@ -122,7 +122,7 @@ function dashboard() {
     });
 
     $('<iframe class="hiddenframe" src="/userinfo.bml?mode=full"></iframe>').appendTo('body').load(function() {
-        var m, doc    = $(this).contents(),
+        var doc       = $(this).contents(),
             my_name   = doc.find('tr').eq(1),
             entries   = doc.find('td:contains(Journal entries:)').next(),
             friends   = doc.find('td:contains(Friends:)'        ).next(),
@@ -140,7 +140,8 @@ function dashboard() {
         $('#list_followers' ).html(followers.find('a').map(function() { return nice_user(    $(this).text()); }).get().slice(0,5).join(', '));
         $('#list_interests' ).html(interests.find('a').map(function() { return nice_interest($(this).text()); }).get().slice(0,5).join(', '));
         $('#last_updated'   ).html(updated.find('i').text());
-        if (m = comments.text().match(/Posted: (\d+) \- Received: (\d+)/)) {
+        var m = comments.text().match(/Posted: (\d+) \- Received: (\d+)/);
+        if (m) {
             $('#comments_posted'  ).html(m[1]);
             $('#comments_received').html(m[2]);
         }
@@ -163,9 +164,9 @@ function dashboard() {
         $('#num_visits'      ).html(visits[0]);
         $('#num_sites'       ).html(sites[0]);
         $('#num_mb'          ).html(mb[0]);
-        $('#page_visit'      ).html(parseInt(pages[0] / visits[0] * 10) / 10);
-        $('#site_visit'      ).html(parseInt(sites[0] / visits[0] * 10) / 10);
-        $('#mb_page'         ).html(parseInt(mb[0]    / pages[0] * 10000) / 10);
+        $('#page_visit'      ).html(parseInt(pages[0] / visits[0] * 10, 10) / 10);
+        $('#site_visit'      ).html(parseInt(sites[0] / visits[0] * 10, 10) / 10);
+        $('#mb_page'         ).html(parseInt(mb[0]    / pages[0] * 10000, 10) / 10);
         $('.chart_visitors'  ).html(chart(visits.reverse()));
         $('.chart_sites'     ).html(chart(sites.reverse()));
         $('.chart_mb'        ).html(chart(mb.reverse()));
@@ -223,7 +224,6 @@ function dashboard() {
 
 }
 
-/* nice_user('subramanian_anand') --> 'Subramanian Anand' */
 function nice_user(username) {
     var names = username.split('_');
     for (var i=0, l=names.length; i<l; i++) {
@@ -242,7 +242,7 @@ function chart(a) {
         if (+a[i] < m1) { m1 = +a[i]; }
         if (+a[i] > m2) { m2 = +a[i]; }
     }
-    for (var i=0, l=a.length; i<l; i++) { a[i] = Math.round((+a[i] - m1) / (m2 - m1) * 100); }
+    for (i=0, l=a.length; i<l; i++) { a[i] = Math.round((+a[i] - m1) / (m2 - m1) * 100); }
     return '<img src="http://chart.apis.google.com/chart?cht=ls&chs=60x24&chco=4f81bd&chd=t:' + a.join(',') + '">';
 }
 
