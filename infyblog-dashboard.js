@@ -1,7 +1,7 @@
 (function() {
 
-var hosted_at = "http://infyblog-dashboard.googlecode.com/svn/trunk/";
-
+// var hosted_at = "http://infyblog-dashboard.googlecode.com/svn/trunk/";
+var hosted_at = "http://www.s-anand.net/";
 
 function load_jQuery(callback) {
     var head   = document.getElementsByTagName('head')[0],
@@ -17,7 +17,7 @@ function load_jQuery(callback) {
 
 /* Create the dashboard */
 function dashboard() {
-    /* Ensure that the user is on infyblogs */
+    /*--- Ensure that the user is on infyblogs ---------*/
     if (location.host != 'blogs' && location.host != 'blogs.ad.infosys.com') {
         var notice = $('<div>This bookmarklet works only at <a href="http://blogs.ad.infosys.com/">blogs.ad.infosys.com</a></div>')
             .css({
@@ -38,7 +38,7 @@ function dashboard() {
 
     /* TODO: Ensure that the user is logged in */
 
-    /* Show placeholders */
+    /*--- Show placeholders ---------------------------*/
     $('head,body').empty();
     document.title = "Infyblogs dashboard";
 
@@ -105,7 +105,21 @@ function dashboard() {
                         '<div class="grid_6">', your_statistics, infyblog_statistics, help, '</div>',
                     '</div>'].join(''));
 
-    /* Get profile data */
+
+    /*---- Get statistics using iframes --------------- */
+    $('<iframe class="hiddenframe" src="/tools/recent_comments.bml"></iframe>').appendTo('body').load(function() {
+        var doc = $(this).contents(),
+            html = doc.find('table:eq(1) tr').slice(0,8).map(function() {
+                var el = $(this),
+                    user         = el.find('td:eq(0) b').text(),
+                    when         = el.find('td:eq(0)').text().replace(user, ''),
+                    entry_link   = el.find('td:eq(1) a:contains(Entry Link)').attr('href'),
+                    comment_link = el.find('td:eq(1) a:contains(Comment Link)').attr('href'),
+                    comment = '<a target="_blank" class="post" href="' + entry_link + '">' + el.find('td:eq(1)').text().replace(' (Entry Link)', '</a>: <a target="_blank" class="comment" href="' + comment_link + '">').replace('(Comment Link) (Reply to this)', '</a>');
+                return '<div class="row"><div class="entryCol">' + comment + '</div><div class="userCol">' + nice_user(user) + '</div><div class="timeCol">' + when + '</div></div>';
+            }).get().join('');
+            $('#comments').html(html + '<a class="more" target="_blank" href="' + $(this).attr('src') + '">View more...</a>');
+    });
 
     $('<iframe class="hiddenframe" src="/userinfo.bml?mode=full"></iframe>').appendTo('body').load(function() {
         var m, doc    = $(this).contents(),
@@ -131,20 +145,6 @@ function dashboard() {
             $('#comments_received').html(m[2]);
         }
         $('.friends_link').attr('href', '/users/' + username + '/friends');
-    });
-
-    $('<iframe class="hiddenframe" src="/tools/recent_comments.bml"></iframe>').appendTo('body').load(function() {
-        var doc = $(this).contents(),
-            html = doc.find('table:eq(1) tr').slice(0,8).map(function() {
-                var el = $(this),
-                    user         = el.find('td:eq(0) b').text(),
-                    when         = el.find('td:eq(0)').text().replace(user, ''),
-                    entry_link   = el.find('td:eq(1) a:contains(Entry Link)').attr('href'),
-                    comment_link = el.find('td:eq(1) a:contains(Comment Link)').attr('href'),
-                    comment = '<a target="_blank" class="post" href="' + entry_link + '">' + el.find('td:eq(1)').text().replace(' (Entry Link)', '</a>: <a target="_blank" class="comment" href="' + comment_link + '">').replace('(Comment Link) (Reply to this)', '</a>');
-                return '<div class="row"><div class="entryCol">' + comment + '</div><div class="userCol">' + nice_user(user) + '</div><div class="timeCol">' + when + '</div></div>';
-            }).get().join('');
-            $('#comments').html(html + '<a class="more" target="_blank" href="' + $(this).attr('src') + '">View more...</a>');
     });
 
     var usage_url = '/usage/';
