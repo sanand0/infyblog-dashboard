@@ -13,10 +13,10 @@ a:hover { color: #4f81bd; border-bottom: 1px solid #c0504d; }
 
 hr          { margin: 0 0 5px 0; padding: 0; }
 .heading .entryCol { font-size: 15px; font-weight: bold; color: #c0504d; }
-.heading .userCol, .heading .timeCol{ font-size: 11px; font-weight: bold; color: #a6a6a6; }
-.entryCol   { width: 300px; clear:left; }
+.heading .userCol, .heading .timeCol { font-size: 11px; font-weight: bold; color: #a6a6a6; }
+.entryCol   { width: 290px; clear:left; }
 .userCol    { width: 100px; text-align: right; }
-.timeCol    { width: 60px; text-align: right; }
+.timeCol    { width: 70px; text-align: right; }
 
 .post { font-style: italic; }
 
@@ -30,8 +30,8 @@ hr          { margin: 0 0 5px 0; padding: 0; }
 .row, .entryCol, .userCol, .timeCol, .stats_details, .popular_url { height: 1.5em; overflow: hidden; word-wrap: none; }
 .row:hover { background-color: #eef; }
 
-#community .userCol, #entries_from_all .userCol { width: 140px; text-align: left; }
-#community .timeCol, #entries_from_all .timeCol { width:  80px; }
+#community .userCol, #entries_from_all .userCol, #recently_created .userCol { width: 140px; text-align: left; }
+#community .timeCol, #entries_from_all .timeCol, #recently_created .timeCol { width:  80px; }
 
 .link_count, .pop_count { float:left; clear:left; width: 20px; text-align: right; margin-right: 5px; }
 .pop_count { width: 35px; }

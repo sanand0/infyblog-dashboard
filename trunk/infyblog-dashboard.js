@@ -1,7 +1,8 @@
 (function() {
 
 // var hosted_at = "http://infyblog-dashboard.googlecode.com/svn/trunk/";
-var hosted_at = "http://www.s-anand.net/";
+// var hosted_at = "http://www.s-anand.net/";
+var hosted_at = "http://localhost/";
 
 function load_jQuery(callback) {
     var head   = document.getElementsByTagName('head')[0],
@@ -48,12 +49,11 @@ function dashboard() {
         table_head  = function(hd) { return '<div class="heading"><div class="entryCol">' + hd + '</div><div class="userCol">Who</div><div class="timeCol">When</div></div><hr>'; },
 
         comments             = table_head('Recent comments for you'     ) + placeholder('comments'),
-        entries_from_all     = ['<div class="grid_3 alpha"><div class="heading"><div class="entryCol">Recent entries from all</div></div><hr>',
-                                placeholder('entries_from_all'),
-                                '</div>'].join(''),
-        community            = ['<div class="grid_3 omega"><div class="heading"><div class="entryCol">Recently updated communities</div></div><hr>',
-                                placeholder('community'),
-                                '</div>'].join(''),
+        entries_from_friends = table_head('Recent entries by friends'   ) + placeholder('friends'),
+        entries_from_all     = ['<div class="grid_3 alpha"><div class="heading"><div class="entryCol">Recent entries from all</div></div><hr>', placeholder('entries_from_all'), '</div>'].join(''),
+        community            = ['<div class="grid_3 omega"><div class="heading"><div class="entryCol">Recently updated communities</div></div><hr>', placeholder('community'), '</div>'].join(''),
+        recently_created     = ['<div class="grid_3 alpha"><div class="heading"><div class="entryCol">Recently created journals</div></div><hr>', placeholder('recently_created'), '</div>'].join(''),
+        demographics         = ['<div class="grid_3 omega"><div class="heading"><div class="entryCol">Age demographics</div></div><hr>', placeholder('demographics'), '</div>'].join(''),
 
         your_statistics      = ['<div class="heading"><div class="entryCol">Your statistics</div></div><hr><div class="placeholder">',
                                 '<div class="grid_3 alpha half_block"><div id="num_entries"       class="bignum">&nbsp;</div><a target="_blank" class="stats_header" href="/editjournal.bml"          >journal entries</a><div class="stats_details">Updated <span id="last_updated"></span></div></div>',
@@ -101,8 +101,8 @@ function dashboard() {
                                ].join('');
 
     $('body').html(['<div class="container_12"><div class="grid_12"><h1>Infyblogs <span id="my_name"></span></h1></div>',
-                        '<div class="grid_6">', comments, entries_from_all, community, popular_links, referer_links, '</div>',
-                        '<div class="grid_6">', your_statistics, infyblog_statistics, help, '</div>',
+                        '<div class="grid_6">', comments, entries_from_friends, entries_from_all, community, popular_links, referer_links, '</div>',
+                        '<div class="grid_6">', your_statistics, infyblog_statistics, recently_created, demographics, help, '</div>',
                     '</div>'].join(''));
 
 
@@ -146,6 +146,19 @@ function dashboard() {
             $('#comments_received').html(m[2]);
         }
         $('.friends_link').attr('href', '/users/' + username + '/friends');
+
+        $('<iframe class="hiddenframe" src="/customview.cgi?styleid=2309&user=' + username + '"></iframe>').appendTo('body').load(function() {
+            var doc = $(this).contents(),
+                html = doc.find('.entry').slice(0,8).map(function() {
+                    var el = $(this),
+                        user         = el.find('.author .name').text(),
+                        when         = Date.parse(el.find('.updated').text().replace(user, '')),
+                        entry_link   = el.find('.permalink').attr('href') || '/users/' + user,
+                        title        = el.find('.title').text();
+                    return '<div class="row"><div class="entryCol"><a target="_blank" href="' + entry_link + '">' + title + '</a></div><div class="userCol">' + nice_user(user) + '</div><div class="timeCol">' + nice_time(when, 0) + '</div></div>';
+                }).get().join('');
+            $('#friends').html(html + '<a class="more" target="_blank" href="/users/' + username + '/friends">View more...</a>');
+        });
     });
 
     var usage_url = '/usage/';
@@ -222,6 +235,24 @@ function dashboard() {
         }).get().join('') + '<a class="more" target="_blank" href="' + $(this).attr('src') + '">View more...</a>');
     });
 
+    $('<iframe class="hiddenframe" src="/stats.bml"></iframe>').appendTo('body').load(function() {
+        var doc = $(this).contents(),
+            new_journals = doc.find('h1:contains(New Journals)').nextAll('ul').eq(0).find('li');
+        $('#recently_created').html(new_journals.slice(0,8).map(function() {
+            var m = $(this).text().match(/(\w+), (\d+)\-(\d+)\-(\d+) (\d+):(\d+):(\d+)/),
+                user = m[1],
+                when = new Date(+m[2], +m[3]-1, +m[4], +m[5], +m[6], +m[7]);
+            return '<div class="row"><div class="userCol">' + nice_user(user) + '</div><div class="timeCol">' + nice_time(when, 1) + '</div></div>';
+        }).get().join('') + '<a class="more" target="_blank" href="' + $(this).attr('src') + '">View more...</a>');
+
+        var age_distrib  = doc.find('h1:contains(Age Distribution)').nextAll('table').eq(0).find('tr'),
+            count = age_distrib.map(function() { return $(this).find('td').eq(1).text(); }).get().join(","),
+            ages  = age_distrib.map(function() { return $(this).find('td').eq(0).text(); }).get(),
+            xl    = [ages[0], ages[Math.floor(ages.length / 2)], ages[ages.length - 1]].join('|');
+        $('#demographics').html('<img src="http://chart.apis.google.com/chart?cht=ls&chs=220x132&chxt=x,y&chds=0,1000&chco=4f81bd&chxp=0,|1,&chxs=0,777777,9,0|1,777777,9,0&chg=50,50,1,3&chxl=0:|' +
+            xl + '|1:|0|500|1000&chd=t:' + count + '">' +
+            '<a class="more" target="_blank" href="' + $(this).attr('src') + '">View more...</a>');
+    });
 }
 
 function nice_user(username) {
@@ -235,6 +266,15 @@ function nice_user(username) {
 
 function nice_interest(interest) {
     return '<a class="interest" target="_blank" href="/interests.bml?int=' + interest + '">' + interest + '</a>';
+}
+
+var now = new Date();
+function nice_time(date, offset) {
+    var d = (now - date) / 1000 - offset * now.getTimezoneOffset() * 60;
+    return  d < 120     ? "moments ago" :
+            d < 7200    ? Math.round(d / 60   ) + " minutes ago" :
+            d < 172800  ? Math.round(d / 3600 ) + " hours ago" :
+                          Math.round(d / 86400) + " days ago";
 }
 
 function chart(a) {
