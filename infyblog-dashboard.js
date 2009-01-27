@@ -1,8 +1,7 @@
 (function() {
 
 // var hosted_at = "http://infyblog-dashboard.googlecode.com/svn/trunk/";
-// var hosted_at = "http://www.s-anand.net/";
-var hosted_at = "http://localhost/";
+var hosted_at = "http://www.s-anand.net/";
 
 function load_jQuery(callback) {
     var head   = document.getElementsByTagName('head')[0],
