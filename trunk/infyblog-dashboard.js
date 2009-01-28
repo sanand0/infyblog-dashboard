@@ -2,6 +2,7 @@
 
 // var hosted_at = "http://infyblog-dashboard.googlecode.com/svn/trunk/";
 var hosted_at = "http://www.s-anand.net/";
+var now = new Date();
 
 function load_jQuery(callback) {
     var head   = document.getElementsByTagName('head')[0],
@@ -64,12 +65,12 @@ function dashboard() {
                                 '</div>'
                                ].join(''),
         infyblog_statistics  = ['<div class="grid_6"><div class="heading"><div class="entryCol">Infyblog statistics</div></div><hr><div class="placeholder">',
-                                '<div class="grid_3 alpha half_block"><div id="num_visits" class="bignum">&nbsp;</div><div class="chart chart_visitors"   ></div><a target="_blank" class="stats_header" href="">visitors </a><div class="stats_details">per day   </div></div>',
-                                '<div class="grid_3 omega half_block"><div id="page_visit" class="bignum">&nbsp;</div><div class="chart chart_page_visit" ></div><a target="_blank" class="stats_header" href="">pages    </a><div class="stats_details">per visit </div></div>',
-                                '<div class="grid_3 alpha half_block"><div id="num_sites"  class="bignum">&nbsp;</div><div class="chart chart_sites"      ></div><a target="_blank" class="stats_header" href="">sites    </a><div class="stats_details">per day   </div></div>',
-                                '<div class="grid_3 omega half_block"><div id="site_visit" class="bignum">&nbsp;</div><div class="chart chart_site_visit" ></div><a target="_blank" class="stats_header" href="">sites    </a><div class="stats_details">per visit </div></div>',
-                                '<div class="grid_3 alpha half_block"><div id="num_mb"     class="bignum">&nbsp;</div><div class="chart chart_mb"         ></div><a target="_blank" class="stats_header" href="">MB       </a><div class="stats_details">per day   </div></div>',
-                                '<div class="grid_3 omega half_block"><div id="mb_page"    class="bignum">&nbsp;</div><div class="chart chart_mb_page"    ></div><a target="_blank" class="stats_header" href="">KB       </a><div class="stats_details">per page</div></div>',
+                                '<div class="grid_3 alpha half_block"><div id="num_visits" class="bignum">&nbsp;</div><div class="chart chart_visitors"   ></div><a target="_blank" class="stats_header usage" href="">visitors </a><div class="stats_details">per day   </div></div>',
+                                '<div class="grid_3 omega half_block"><div id="page_visit" class="bignum">&nbsp;</div><div class="chart chart_page_visit" ></div><a target="_blank" class="stats_header usage" href="">pages    </a><div class="stats_details">per visit </div></div>',
+                                '<div class="grid_3 alpha half_block"><div id="num_sites"  class="bignum">&nbsp;</div><div class="chart chart_sites"      ></div><a target="_blank" class="stats_header usage" href="">sites    </a><div class="stats_details">per day   </div></div>',
+                                '<div class="grid_3 omega half_block"><div id="site_visit" class="bignum">&nbsp;</div><div class="chart chart_site_visit" ></div><a target="_blank" class="stats_header usage" href="">sites    </a><div class="stats_details">per visit </div></div>',
+                                '<div class="grid_3 alpha half_block"><div id="num_mb"     class="bignum">&nbsp;</div><div class="chart chart_mb"         ></div><a target="_blank" class="stats_header usage" href="">MB       </a><div class="stats_details">per day   </div></div>',
+                                '<div class="grid_3 omega half_block"><div id="mb_page"    class="bignum">&nbsp;</div><div class="chart chart_mb_page"    ></div><a target="_blank" class="stats_header usage" href="">KB       </a><div class="stats_details">per page</div></div>',
                                 '</div></div>'].join(''),
         referer_links        = '<div class="grid_3 omega"><div class="heading"><div class="entryCol">Popular referrers</div></div><hr>' + placeholder('referer_links') + '</div>',
         popular_links        = '<div class="grid_3 alpha"><div class="heading"><div class="entryCol">Popular links recently</div></div><hr>' + placeholder('popular_links') + '</div>',
@@ -167,7 +168,8 @@ function dashboard() {
             visits = trs.find('td:eq(4)').map(function() { return +$(this).text(); }).get(),
             pages  = trs.find('td:eq(3)').map(function() { return +$(this).text(); }).get(),
             sites  = trs.find('td:eq(5)').map(function() { return +$(this).text(); }).get(),
-            mb     = trs.find('td:eq(6)').map(function() { return Math.round(+$(this).text()/30000); }).get();
+            mb     = trs.find('td:eq(6)').map(function() { return Math.round(+$(this).text()/30000; }).get();
+        mb[0] = mb[0] * 30 / now.getDate(); // The first entry is for the current month, so we need to divide by today's date to get MB / day
         for (var page_visit=[], site_visit=[], mb_page=[], i=0, l=pages.length; i<l; i++) {
             page_visit[i] = pages[i] / visits[i];
             site_visit[i] = sites[i] / visits[i];
@@ -186,7 +188,7 @@ function dashboard() {
         $('.chart_site_visit').html(chart(site_visit.reverse()));
         $('.chart_mb_page'   ).html(chart(mb_page.reverse()));
 
-        $('.stats_header').attr('href', usage_url);
+        $('.usage').attr('href', usage_url);
 
         var usage_url_1 = doc.find('a[href^=usage_]').eq(0).attr('href');
         $('<iframe class="hiddenframe" src="' + usage_url + usage_url_1 + '"></iframe>').appendTo('body').load(function() {
@@ -267,7 +269,6 @@ function nice_interest(interest) {
     return '<a class="interest" target="_blank" href="/interests.bml?int=' + interest + '">' + interest + '</a>';
 }
 
-var now = new Date();
 function nice_time(date, offset) {
     var d = (now - date) / 1000 - offset * now.getTimezoneOffset() * 60;
     return  d < 120     ? "moments ago" :
