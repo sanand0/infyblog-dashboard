@@ -168,8 +168,8 @@ function dashboard() {
             visits = trs.find('td:eq(4)').map(function() { return +$(this).text(); }).get(),
             pages  = trs.find('td:eq(3)').map(function() { return +$(this).text(); }).get(),
             sites  = trs.find('td:eq(5)').map(function() { return +$(this).text(); }).get(),
-            mb     = trs.find('td:eq(6)').map(function() { return Math.round(+$(this).text()/30000; }).get();
-        mb[0] = mb[0] * 30 / now.getDate(); // The first entry is for the current month, so we need to divide by today's date to get MB / day
+            mb     = trs.find('td:eq(6)').map(function() { return Math.round(+$(this).text()/30000); }).get();
+        mb[0] = Math.round(mb[0] * 30 / now.getDate()); // The first entry is for the current month, so we need to divide by today's date to get MB / day
         for (var page_visit=[], site_visit=[], mb_page=[], i=0, l=pages.length; i<l; i++) {
             page_visit[i] = pages[i] / visits[i];
             site_visit[i] = sites[i] / visits[i];
