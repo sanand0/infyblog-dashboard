@@ -7,7 +7,10 @@ var now = new Date();
 function load_jQuery(callback) {
     var head   = document.getElementsByTagName('head')[0],
         script = document.createElement('script');
-    script.setAttribute('src','http://ajax.googleapis.com/ajax/libs/jquery/1.3.0/jquery.min.js');
+    script.setAttribute('src','http://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js');
+    head.appendChild(script);
+    script = document.createElement('script');
+    script.setAttribute('src', hosted_at + 'jquery.jtip.js');
     head.appendChild(script);
     script.onload = script.onreadystatechange = function() {
         if ( !this.readyState || this.readyState == 'loaded' || this.readyState == 'complete' ) {
@@ -18,10 +21,8 @@ function load_jQuery(callback) {
 
 /* Create the dashboard */
 function dashboard() {
-    /*--- Ensure that the user is on infyblogs ---------*/
-    if (location.host != 'blogs' && location.host != 'blogs.ad.infosys.com') {
-        var notice = $('<div>This bookmarklet works only at <a href="http://blogs.ad.infosys.com/">blogs.ad.infosys.com</a></div>')
-            .css({
+    var notify = function (s) {
+        var notice = $(s).css({
                 position: 'absolute',
                 width: '200',
                 margin: '0 auto',
@@ -34,16 +35,26 @@ function dashboard() {
             })
             .appendTo($('body'));
         $('html,body').animate({scrollTop: 0}, {complete: function() { setTimeout(function() { notice.fadeOut(4000); }, 2000); } });
+    }
+
+    /*--- Ensure that the user is on infyblogs ---------*/
+    if (location.host != 'blogs' && location.host != 'blogs.ad.infosys.com') {
+        notify('<div>This bookmarklet works only at <a href="http://blogs.ad.infosys.com/">blogs.ad.infosys.com</a></div>');
         return;
     }
 
-    /* TODO: Ensure that the user is logged in */
+    /*--- Ensure that the user is logged in on infyblogs ---------*/
+    if ($('#navAlpha a[href="/login.bml"]').length > 0) {
+        notify('<div>This bookmarklet works only at <a href="http://blogs.ad.infosys.com/">blogs.ad.infosys.com</a></div>');
+        return;
+    }
 
     /*--- Show placeholders ---------------------------*/
     $('head,body').empty();
     document.title = "Infyblogs dashboard";
 
     $('head').append('<link rel="stylesheet" href="' + hosted_at + 'infyblog-dashboard.css">');
+    $('head').append('<link rel="stylesheet" href="' + hosted_at + 'jquery.jtip.css">');
 
     var placeholder = function(id) { return '<div id="' + id + '" class="placeholder"><img src="' + hosted_at + 'loading-white.gif"></div>'; },
         table_head  = function(hd) { return '<div class="heading"><div class="entryCol">' + hd + '</div><div class="userCol">Who</div><div class="timeCol">When</div></div><hr>'; },
@@ -115,10 +126,14 @@ function dashboard() {
                     when         = el.find('td:eq(0)').text().replace(user, ''),
                     entry_link   = el.find('td:eq(1) a:contains(Entry Link)').attr('href'),
                     comment_link = el.find('td:eq(1) a:contains(Comment Link)').attr('href'),
-                    comment = '<a target="_blank" class="post" href="' + entry_link + '">' + el.find('td:eq(1)').text().replace(' (Entry Link)', '</a>: <a target="_blank" class="comment" href="' + comment_link + '">').replace('(Comment Link) (Reply to this)', '</a>');
+                    comment_id   = el.find('td:eq(1) a:contains(Comment Link)').attr('href').split("#")[1],
+                    strHTML      = el.find('td:eq(1)').html(),
+                    comment_html = strHTML.substr(parseInt(strHTML.toLowerCase().indexOf('<br>') + 8), (strHTML.toLowerCase().indexOf('(<a',strHTML.toLowerCase().indexOf('<br>')) - strHTML.toLowerCase().indexOf('<br>') - 16)),
+                    comment      = '<a id="' + comment_id + 'm" target="_blank" class="post" href="' + entry_link + '">' + el.find('td:eq(1)').text().replace(' (Entry Link)', '</a> : <a id="' + comment_id + '" name="' + user + '" target="_blank" class="jTipper" href="' + comment_link + '">').replace('(Comment Link) (Reply to this)', '<div class="hidden">'+ comment_html + '</div></a>');
                 return '<div class="row"><div class="entryCol">' + comment + '</div><div class="userCol">' + nice_user(user) + '</div><div class="timeCol">' + when + '</div></div>';
             }).get().join('');
             $('#comments').html(html + '<a class="more" target="_blank" href="' + $(this).attr('src') + '">View more...</a>');
+            JT_init();
     });
 
     $('<iframe class="hiddenframe" src="/userinfo.bml?mode=full"></iframe>').appendTo('body').load(function() {
@@ -155,7 +170,7 @@ function dashboard() {
                         when         = Date.parse(el.find('.updated').text().replace(user, '')),
                         entry_link   = el.find('.permalink').attr('href') || '/users/' + user,
                         title        = el.find('.title').text();
-                    return '<div class="row"><div class="entryCol"><a target="_blank" href="' + entry_link + '">' + title + '</a></div><div class="userCol">' + nice_user(user) + '</div><div class="timeCol">' + nice_time(when, 0) + '</div></div>';
+                    return '<div class="row"><div class="entryCol"><a id="' + entry_link + '" target="_blank" href="' + entry_link + '">' + title + '</a></div><div class="userCol">' + nice_user(user) + '</div><div class="timeCol">' + nice_time(when, 0) + '</div></div>';
                 }).get().join('');
             $('#friends').html(html + '<a class="more" target="_blank" href="/users/' + username + '/friends">View more...</a>');
         });
