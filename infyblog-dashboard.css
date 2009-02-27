@@ -37,3 +37,7 @@ hr          { margin: 0 0 5px 0; padding: 0; }
 .pop_count { width: 35px; }
 
 a.more { color: #4f81bd; }
+
+.divNewEn { float: right; line-height:4em; font-size:10pt; }
+.prevDiv { float:left; width:25px; }
+.nextDiv { float:right; width:25px; }
